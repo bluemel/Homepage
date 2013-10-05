@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!DOCTYPE project SYSTEM "ant-buildfile.dtd">
+
+<!--
+####################################################
+# build file for Martin Bluemel's home page
+####################################################
+-->
+<project name="Homepage" basedir="." default="export">
+
+    <property environment="env"/>
+    <property file="ant.properties"/>
+
+    <taskdef name="simpleftp" classname="org.rapidbeans.ant.TaskSimpleFtp">
+        <classpath>
+            <pathelement
+                location="${env.LOCAL_REPOSITORY}/org/rapidbeans/rapidbeans-anttasks/${version.rapidbeans-anttasks}/rapidbeans-anttasks-${version.rapidbeans-anttasks}.jar"/>
+        </classpath>
+    </taskdef>
+
+<!--
+	####################################################
+	# set up environment and Ant properties
+	####################################################
+-->
+	<property environment="env"/>
+
+<!--
+  ####################################################
+  # read the property files (the first property setting
+  # superseeds all subsequent settings. precedence:
+  # 1) user specific props
+  # 2) machine specific props
+  # 3) project props
+  ####################################################
+-->
+	  <property file="ant.properties"/>
+<!--
+  <property file=".config/ant_host_${env.USERNAME}.properties"/>
+  <property file=".config/ant_host_${env.HOSTNAME}.properties"/>
+  <property file="${project.home}/.config/ant_host_${env.USERNAME}.properties"/>
+  <property file="${project.home}/.config/ant_host_${env.HOSTNAME}.properties"/>
+  <property file="${project.home}/.config/ant_common.properties"/>
+-->
+	<tstamp>
+		<format property="tstamp.datetime.en" pattern="MM/dd/yyyy hh:mm aa" locale="en"/>
+		<format property="tstamp.timestamp" pattern="yyyyMMddHHmm"/>
+    </tstamp>
+
+<!--
+	####################################################################
+	# settings
+	####################################################################
+-->
+	<path id="project.classpath">
+		<pathelement location="classes"/>
+		<pathelement location="../org.rapidbeans/dist/rapidbeans-framework-${version.framework}.jar"></pathelement>
+		<pathelement location="../org.rapidbeans/classes_test"/>
+		<pathelement location="${env.RAPIDBEANS_TOOLS_HOME}/MavenJarRepository/Junit/jars/junit-3.8.1.jar"/>
+	</path>
+
+	<!--
+		####################################################
+		# deploy
+		####################################################
+	-->
+	<target name="export">
+		<copy todir="dist">
+			<fileset dir="."
+				excludes=".settings/**/*,.project,diststamps,diststamps/**/*,dist,dist/**/*,.svn/**/*,build.xml,ant-buildfile.dtd,ant.properties,xhtml*"/>
+		</copy>
+		<mkdir dir="diststamps"/>
+		<simpleftp
+			server="www.muenchen-surf.de"
+			remotedir="."
+			userid="bluemel"
+			password="ka19th11"
+			localdir="dist"
+			stampdir="diststamps"
+			/>
+<!--
+		<ftp
+            server="www.muenchen-surf.de"
+            userid="bluemel"
+            password="ka19th11"
+            remotedir=".">
+			<fileset dir="dist"/>
+		</ftp>
+-->
+	</target>
+
+	<target name="clean">
+		<delete dir="dist"/>
+        <delete dir="diststamps"/>
+	</target>
+
+</project>

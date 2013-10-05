@@ -1,0 +1,57 @@
+<project name="TestApplet" default="jar_ss" basedir=".">
+	
+	<!-- ####################################################################
+	# do not modify these settings
+	##################################################################### -->
+	<property name="dirSrc" value="."/>
+	<property name="dirClasses" value="classes"/>
+	<property name="dirDist" value="dist"/>
+	<property name="fileJarUnsigned" value="javaPluginTestApplet.jar"/>
+	<property name="fileJarSigned" value="sJavaPluginTestApplet.jar"/>
+	<property name="fileKeystore" value="keystore.dat"/>
+	<property name="fileJavaPolicy" value="java.policy"/>
+	<property name="certKeyalias" value="appletcert"/>
+	<property name="certKeypass" value="ka19th11"/>
+	<property name="certStorepass" value="ka19th11"/>
+	
+	<!-- ####################################################################
+	# common tasks
+	##################################################################### -->
+	<target name="compile">
+		<mkdir dir="${dirClasses}"/>
+		<javac srcdir="${dirSrc}" destdir="${dirClasses}"
+			source="1.5"
+			target="1.5"
+		/>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${dirDist}"/>
+		<jar jarfile="${dirDist}/${fileJarUnsigned}" basedir="${dirClasses}"/>
+	</target>
+	
+	<target name="jar_ss" depends="jar,-scanDependenciesSignjar"
+		unless="signjarNotRequired">
+		<signjar jar="${dirDist}/${fileJarUnsigned}"
+			signedjar="${dirDist}/${fileJarSigned}"
+			keystore="security/keystore.jks" alias="${certKeyalias}"
+			storepass="${certStorepass}" keypass="${certKeypass}"/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dirClasses}"/>
+		<delete dir="${dirDist}"/>
+	</target>
+	
+	<!-- signjar macht leider immer seine Aktion, egal ob "jar" neuer ist als "signedjar"
+	oder nicht. Daher muessen wir die Dependencies in einem separaten Schritt
+	ermitteln
+	-->
+	<target name="-scanDependenciesSignjar">
+		<uptodate property="signjarNotRequired"
+			targetfile="${dirDist}/${fileJarSigned}">
+			<srcfiles dir="${dirDist}" includes="${fileJarUnsigned}"/>
+		</uptodate>
+	</target>
+	
+</project>

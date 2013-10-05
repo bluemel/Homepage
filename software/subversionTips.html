@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"/>
+	<title>Martin Bluemel - Software Development - Getting Started with Subversion</title>
+</head>
+	
+<body background="../wallpaper.jpg" text="#000000">
+	<a href="index.html">
+		<img
+			style="border: 0px solid; width: 32px; height: 32px;"
+			src="../up.jpg"
+			title="navigate upward"/>
+	</a>
+		
+<h1 style="color: rgb(46, 97, 250);">Getting Started with Subversion</h1>
+
+<br/>
+
+<p>
+This article describes the minimal steps to put an arbitrary
+set of files under version control and accessing them locally or
+remotely by another computer in a LAN.<br/>
+<br/>
+<br/>
+<b>Prerequisites:</b><br/>
+<li>Subversion installed</li>
+<li>A command prompt or shell</li>
+<li>svn command in your path. To check that simply type:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<code>svn --version</code><br/>
+Subversion is supposed to answer for example:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<code>svn, Version 1.4.5 (r25188) ...</code><br/>
+</li>
+<br/>
+Let's assume I for example want to put my homepage files
+under version control all currently residing in my local folder 
+<code>D:\Martin\Homepage</code> (yes I admit I have a
+Windows box - Linux and Apple users will easily translate
+the path syntax).<br/>
+<br/>
+Before we import the files into the Subversion repository we
+have to consider how we want to use Subversion. Basically we
+can:<br/>
+<li>Administer all our projects in one single repository</li>
+<li>Administer every project in its own repository</li>
+<li>Do something in between</li>
+<br/>
+If we just have some tiny personal projects I'd recommend
+to stick them all into one single personal Subversion repository.
+Every project then simply is located in a distinct folder
+within the repository.
+<br/>
+In order to accomplish this just perform the following steps:<br/>
+</p>
+<br/>
+
+<p align="left" style="margin-left: 1em; text-indent: -1em">
+	<b>1) create a new Subversion repository:</b><br/>
+	<br/>
+	Use the following command:<br/>
+	<code>
+	svnadmin create --fs-type fsfs <i>&lt;repository path&gt;</i><br/>
+	</code>
+	<br/>
+	Please note that the parent path of <code><i>&lt;repository path&gt;</i></code>
+	must exist in advance.<br/>
+	The <code>--fs-type fsfs</code> option specifies Subversion's own repository implementation and has
+	many advantages (see
+	<a href="http://svn.collab.net/repos/svn/trunk/notes/fsfs">How FSFS is Better</a>
+	for detailed information) over the Berkley DB (<code>--fs-type bdb</code>).<br/>
+	<span style="color:blue">
+	example:<br/>
+	<code>
+	svnadmin create --fs-type fsfs F:\SubversionRepository<br/>
+	</code>
+	</span>
+</p>
+<br/>
+
+<p align="left" style="margin-left: 1em; text-indent: -1em">
+<b>2) initial file import into the Subversion repository:</b><br/>
+	<br/>
+	In order to prepare import of files create a temporary folder<br/>
+	<code><i>&lt;temporary path&gt;</i>/<i>&lt;internal root&gt;</i></code>.<br/>
+	and copy all the files to put under version control there.<br/>
+	<br/>
+	<code><i>&lt;internal root&gt;</i></code> specifies the root directory
+	where your project files will be stored <b>within</b> the repository.
+	Subversion basically does not make any prescriptions about how to
+	structure internal roots. This is completely up to you. One simple
+	schema would be:<br/>
+	<code><i>&lt;internal root&gt;</i> = <i>&lt;project&gt;</i>/<i>&lt;branch&gt;</i></code><br/>
+	While <code><i>&lt;project&gt;</i></code> simply specifies you project
+	<code><i>&lt;branch&gt;</i></code> specifies a certain variant
+	of your project which you may want to keep separately because you
+	have for example to do separate maintenance of an old version of your
+	project already delivered to someone else.<br/>
+	Feel free to omit <code><i>&lt;branch&gt;</i></code> if you are
+	sure you'll never use it. Otherwise simply start with a branch <i>"trunk"</i>
+	or <i>"main"</i> (Subversion people tend to call the main line "trunk").<br/>
+	<span style="color:blue">
+	example:<br/>
+	<code>
+	mkdir C:\Temp\SvnImport\homepage\trunk<br/>
+	xcopy /Q /S D:\Martin\Homepage C:\Temp\SvnImport\homepage\trunk<br/>
+	</code>
+	</span>
+	<br/>
+	In order to import the files into the Subversion repository type:<br/>
+	<code>
+	svn import <i>&lt;temporary path&gt;</i>
+		file:///<i>&lt;local repository svn URL&gt;</i> -m "initial import"<br/>
+	</code>
+	<br/>
+	<b>Please note</b> that <code><i>&lt;local repository svn URL&gt;</i></code>
+	is the absolute path of the Subversion repository created before
+	<code><i>&lt;repository path&gt;</i></code>
+	but in URL notation and so starting with <b>'file:///'</b> and containing always
+	<b>'/'</b> as separator<br/>
+	<span style="color:blue">
+	example:<br/>
+	<code>
+    svn import C:\Temp\SvnImport
+		file:///F:/SubversionRepository -m "initial import"<br/>
+	</code>		
+	</span>
+	<br/>
+</p>
+<br/>
+
+<p align="left" style="margin-left: 1em; text-indent: -1em">
+	<b>3a) local checkout</b><br/>
+	<br/>
+	The Subversion term for the first download of a set of files
+	out of the repository is "checkout" (do not mix that up with
+	"checkout" on other version control systems like ClearCase):<br/>
+	<code>
+	svn checkout <i>&lt;local repository svn URL&gt;</i>/<i>&lt;internal root&gt;</i>
+		<i>&lt;local file root&gt;</i><br/>
+	</code>
+	<span style="color:blue">
+	example:<br/>
+	<code>
+    svn checkout file:///F:/SubversionRepository/homepage/trunk D:\Projects\Homepage<br/>
+	</code>		
+	</span>
+	<b>Please note</b> that <code><i>&lt;local file root&gt;</i></code> which
+	is the new location where you work on your files under version control may
+	but must not exist. Even parent directories are automatically created if
+	they do not exist. You can work with an absolute or a relative path.<br/>
+<br/>
+</p>
+
+<p align="left" style="margin-left: 1em; text-indent: -1em">
+	<b>3b) remote checkout:</b><br/>
+	<br/>
+	The simplest way to synchronize multiple machines over a local area network
+	is using network shares. If you are able to mount the Subversion repository
+	on the machine where it resides of course you can access it like a local
+	one.<br/>
+	<br/>
+	Another way to synchronize multiple machines over the network is to use
+	Subversions built-in repository server.
+	Simply start this server with command:<br/>
+	<code>
+    svnserve -d --listen-port 3690 -r <i>&lt;repository path&gt;</i><br/>
+	</code>
+	<br/>
+	Then issue:<br/>
+	<code>
+	svn checkout svn://<i>&lt;hostname&gt;</i>/<i>&lt;internal root&gt;</i>
+		<i>&lt;local file root&gt;</i><br/>
+	</code>
+	<code><i>&lt;hostname&gt;</i></code> of course is the symbolic name or the
+	IP address of the machine where the Subversion repository server runs.<br/> 
+	<span style="color:blue">
+	example:<br/>
+	<code>
+    svn checkout svn://bluemix/homepage/trunk D:\Projects\Homepage<br/>
+	</code>		
+	</span>
+	<br/>
+	The checkout will work fine this way since a Subversion repository's default
+	configuration is to allow read without any authentication (anon-access).
+	But the default configuration won't allow you to commit or write back files
+    via the Subversion repository server.<br/>
+	If you want to do so and do not care about security simply set property
+	<code>"anon-access"</code> to <code>"write"</code>
+	in the <code>conf/svnserve.conf</code> file of the Subversion repository:<br/>
+	<br/>
+	<code>
+	[general]<br/>
+	### These options control access to the repository for unauthenticated<br/>
+	### and authenticated users. Valid values are "write", "read",<br/>
+	### and "none".  The sample settings below are the defaults.<br/>
+	anon-access = <b>write</b><br/>
+	auth-access = write<br/>
+	</code>
+	<br/>
+	Otherwise better set<br/>
+	<br/>
+	<code>
+	anon-access = <b>none</b><br/>
+	auth-access = write<br/>
+	</code>
+	<br/>
+	and configure authentication.<br/>
+</p>
+
+</body>
+
+</html>
